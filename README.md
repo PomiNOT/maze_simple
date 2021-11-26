@@ -1,3 +1,3 @@
 # maze_simple
-Very inefficient maze implementation :)
+Very bad maze implementation :)
 Written with help from Copilot
