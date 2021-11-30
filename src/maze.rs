@@ -16,6 +16,7 @@ pub struct Maze {
     pub horizontal_walls: HashMap<Position, bool>,
     pub vertical_walls: HashMap<Position, bool>,
     pub active_position: Position,
+    pub completed: bool,
     stack: Vec<Position>,
 }
 
@@ -40,6 +41,7 @@ impl Maze {
             stack: Vec::new(),
             horizontal_walls,
             vertical_walls,
+            completed: false,
         }
     }
 
@@ -68,7 +70,7 @@ impl Maze {
     }
 
     fn outside_grid(&self, point: Position) -> bool {
-        return point.0 < 0 || point.0 > self.width - 1 || point.1 < 0 || point.1 > self.height - 1;
+        point.0 < 0 || point.0 > self.width - 1 || point.1 < 0 || point.1 > self.height - 1
     }
 
     fn is_dead_end(&self, point: Position) -> bool {
@@ -89,7 +91,7 @@ impl Maze {
         }
     }
 
-    pub fn generate_next(&mut self) {
+    pub fn generate_next(&mut self) -> bool {
         let dir = self.pick_random_direction();
         let next_cell = (
             self.active_position.0 + dir.0,
@@ -97,9 +99,12 @@ impl Maze {
         );
 
         if self.outside_grid(next_cell) {
-            return;
+            return false;
         } else if self.is_dead_end(self.active_position) {
             self.backtrack();
+            let backtracked_to_beginning = self.active_position == (0, 0);
+            self.completed = backtracked_to_beginning;
+            return false;
         } else if !self.is_visited(next_cell) {
             self.set_visited(self.active_position, true);
             self.set_visited(next_cell, true);
@@ -122,6 +127,10 @@ impl Maze {
 
             self.stack.push(self.active_position);
             self.active_position = next_cell;
+
+            return true;
+        } else {
+            return false;
         }
     }
 }
